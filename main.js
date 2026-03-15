@@ -15,6 +15,25 @@ function fnDate(commentDate) {
    return `${day}.${month}.${year} ${hours}:${minutes}`
 }
 
+// * Функция добавления лайка
+function fnLike() {
+   const commentLikeButtons = document.querySelectorAll('.like-button') // * Like Button
+   commentLikeButtons.forEach((button) => button.addEventListener('click', () => {
+      const element = document.querySelector(`.likes-counter[data-index="${button.dataset.index}"]`)
+      let counter = Number(element.innerText)
+
+      if (button.classList.contains('-active-like')) {
+         button.classList.remove('-active-like')
+         counter--
+         element.innerText = counter
+      } else {
+         button.classList.add('-active-like')
+         counter++
+         element.innerText = counter
+      }
+   }))
+}
+
 // * Функция добавления комментария
 commentButton.addEventListener('click', () => {
    let error = false
@@ -66,4 +85,8 @@ commentButton.addEventListener('click', () => {
    // * Сброс полей ввода, после успешного выполнения
    commentName.value = ''
    commentText.value = ''
+
+   // * Функция добавления лайка
+   fnLike()
 })
+

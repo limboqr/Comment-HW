@@ -15,6 +15,79 @@ function fnDate(commentDate) {
    return `${day}.${month}.${year} ${hours}:${minutes}`
 }
 
+// * Массив комментов
+const comments = [
+   {
+      name: 'Глеб Фокин',
+      date: '12.02.22 12:18',
+      text: 'Это будет первый комментарий на этой странице',
+      isLiked: false,
+      likeCount: 3,
+   },
+   {
+      name: 'Варвара Н.',
+      date: '13.02.22 19:22',
+      text: 'Мне нравится как оформлена эта страница! ❤',
+      isLiked: true,
+      likeCount: 75,
+   },
+]
+
+// * Функция рендера комментов в HTML
+function renderComments() {
+   // * Создание нового массива с помощью map()
+   commentsList.innerHTML = comments.map((comment, index) => {
+      // * Узнаём, есть ли лайк в комменте
+      const classButton = comment.isLiked
+         ? '-active-like'
+         : ''
+
+      return `<li class="comment">
+      <div class="comment-header">
+         <div>${comment.name}</div>
+         <div>${comment.date}</div>
+      </div>
+      <div class="comment-body">
+         <div class="comment-text">
+            ${comment.text}
+         </div>
+      </div>
+      <div class="comment-footer">
+         <div class="likes">
+            <span class="likes-counter" data-index="${index}">${comment.likeCount}</span>
+            <button class="like-button ${classButton}" data-index="${index}"></button>
+         </div>
+      </div>
+   </li>`
+   }).join('') // * С помощью join() делаем строку
+
+   // * Функция лайка
+   initEventListener()
+}
+
+// * Функция лайка
+function initEventListener() {
+   // * Переменная всех кнопок лайков
+   const likeButtonElements = document.querySelectorAll('.like-button')
+
+   // * Цикл. При клике на кнопку лайка, добавляется или убирается лайк
+   for (const likeButtonElement of likeButtonElements) {
+      likeButtonElement.addEventListener('click', () => {
+         const index = likeButtonElement.dataset.index
+         if (comments[index].isLiked) {
+            comments[index].isLiked = !comments[index].isLiked
+            comments[index].likeCount--
+         } else {
+            comments[index].isLiked = !comments[index].isLiked
+            comments[index].likeCount++
+         }
+
+         // * После клика на кнопку лайка, перерендарится массив комментариев
+         renderComments()
+      })
+   }
+}
+
 // * Функция добавления лайка
 function fnLike() {
    const commentLikeButtons = document.querySelectorAll('.like-button') // * Like Button

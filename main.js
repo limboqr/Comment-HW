@@ -15,6 +15,79 @@ function fnDate(commentDate) {
    return `${day}.${month}.${year} ${hours}:${minutes}`
 }
 
+// * Функция лайка
+function initEventListener() {
+   // * Переменная всех кнопок лайков
+   const likeButtonElements = document.querySelectorAll('.like-button')
+
+   // * Цикл. При клике на кнопку лайка, добавляется или убирается лайк
+   for (const likeButtonElement of likeButtonElements) {
+      likeButtonElement.addEventListener('click', () => {
+         const index = likeButtonElement.dataset.index
+         if (comments[index].isLiked) {
+            comments[index].isLiked = !comments[index].isLiked
+            comments[index].likeCount--
+         } else {
+            comments[index].isLiked = !comments[index].isLiked
+            comments[index].likeCount++
+         }
+
+         // * После клика на кнопку лайка, перерендарится массив комментариев
+         renderComments()
+      })
+   }
+}
+
+// * Массив комментов
+const comments = [
+   {
+      name: 'Глеб Фокин',
+      date: '12.02.22 12:18',
+      text: 'Это будет первый комментарий на этой странице',
+      isLiked: false,
+      likeCount: 3,
+   },
+   {
+      name: 'Варвара Н.',
+      date: '13.02.22 19:22',
+      text: 'Мне нравится как оформлена эта страница! ❤',
+      isLiked: true,
+      likeCount: 75,
+   },
+]
+
+// * Функция рендера комментов в HTML
+function renderComments() {
+   // * Создание нового массива с помощью map()
+   commentsList.innerHTML = comments.map((comment, index) => {
+      // * Узнаём, есть ли лайк в комменте
+      const classButton = comment.isLiked
+         ? '-active-like'
+         : ''
+
+      return `<li class="comment">
+      <div class="comment-header">
+         <div>${comment.name}</div>
+         <div>${comment.date}</div>
+      </div>
+      <div class="comment-body">
+         <div class="comment-text">
+            ${comment.text}
+         </div>
+      </div>
+      <div class="comment-footer">
+         <div class="likes">
+            <span class="likes-counter" data-index="${index}">${comment.likeCount}</span>
+            <button class="like-button ${classButton}" data-index="${index}"></button>
+         </div>
+      </div>
+   </li>`
+   }).join('') // * С помощью join() делаем строку
+
+   // * Функция лайка
+   initEventListener()
+}
+
 // * Функция добавления лайка
 function fnLike() {
    const commentLikeButtons = document.querySelectorAll('.like-button') // * Like Button
@@ -34,18 +107,20 @@ function fnLike() {
    }))
 }
 
-// * Функция добавления комментария
+// * Валидация ввода имени и комментария
 commentButton.addEventListener('click', () => {
+   // * Создание переменной ошибки
    let error = false
-   // * Валидация полей ввода
+
    commentName.classList.remove('input-error')
    commentText.classList.remove('input-error')
-   // * Name
+
+   // * Проверка ввода пробелов
    if (commentName.value.trim() === '') {
       commentName.classList.add('input-error')
       error = true
    }
-   // * Text
+
    if (commentText.value.trim() === '') {
       commentText.classList.add('input-error')
       error = true
@@ -55,38 +130,27 @@ commentButton.addEventListener('click', () => {
       return
    }
 
-   // * Добваление комментария  
-   const oldCommentList = commentsList.innerHTML
+   // * Создание новой даты в новом комментарии
+   let commentDate = new Date()
 
-   if (commentName.value && commentText.value) {
-      const index = document.querySelectorAll('li.comment').length + 1
-      const commentDate = new Date()
+   // * Добавление комментария в массив комментариев
+   comments.push(
+      {
+         name: commentName.value,
+         date: fnDate(commentDate),
+         text: commentText.value,
+         isLiked: false,
+         likeCount: 0,
+      }
+   )
 
-      commentsList.innerHTML = oldCommentList +
-         `<li class="comment">
-         <div class="comment-header">
-            <div>${commentName.value}</div>
-            <div>${fnDate(commentDate)}</div>
-         </div>
-         <div class="comment-body">
-            <div class="comment-text">
-               ${commentText.value}
-            </div>
-         </div>
-         <div class="comment-footer">
-            <div class="likes">
-               <span class="likes-counter" data-index="${index}">0</span>
-               <button class="like-button" data-index="${index}"></button>
-            </div>
-         </div>
-      </li>`
-   }
+   // * Перерендер массива после добавления комментария в HTML
+   renderComments()
 
-   // * Сброс полей ввода, после успешного выполнения
-   commentName.value = ''
+   // * Поля ввода после создания комментария
+   commentName.value = `${commentName.value}`
    commentText.value = ''
-
-   // * Функция добавления лайка
-   fnLike()
 })
 
+// * Рендер массива при загрузке страницы
+renderComments()

@@ -1,8 +1,8 @@
 // * Онсновные переменные
 const commentButton = document.getElementById('comment-button') // * Button
 const commentsList = document.getElementById('comments-list') // * List
-const commentName = document.getElementById('comment-name') // * Name
-const commentText = document.getElementById('comment-text') // * Text
+const commentNameInput = document.getElementById('comment-name-input') // * Name
+const commentTextInput = document.getElementById('comment-text-input') // * Text
 
 // * Функция формата даты
 function fnDate(commentDate) {
@@ -56,7 +56,6 @@ const comments = [
    },
 ]
 
-// * Функция рендера комментов в HTML
 function renderComments() {
    // * Создание нового массива с помощью map()
    commentsList.innerHTML = comments.map((comment, index) => {
@@ -71,7 +70,7 @@ function renderComments() {
          <div>${comment.date}</div>
       </div>
       <div class="comment-body">
-         <div class="comment-text">
+         <div class="comment-text" data-index="${index}">
             ${comment.text}
          </div>
       </div>
@@ -83,6 +82,15 @@ function renderComments() {
       </div>
    </li>`
    }).join('') // * С помощью join() делаем строку
+
+   const commentTexts = document.querySelectorAll('.comment-text')
+   commentTexts.forEach(commentText => {
+      commentText.addEventListener('click', (event) => {
+         const index = event.target.getAttribute('data-index')
+         commentTextInput.value = `> ${comments[index].text}: ${comments[index].name}`
+         commentTextInput.focus()
+      })
+   })
 
    // * Функция лайка
    initEventListener()
@@ -112,17 +120,17 @@ commentButton.addEventListener('click', () => {
    // * Создание переменной ошибки
    let error = false
 
-   commentName.classList.remove('input-error')
-   commentText.classList.remove('input-error')
+   commentNameInput.classList.remove('input-error')
+   commentTextInput.classList.remove('input-error')
 
    // * Проверка ввода пробелов
-   if (commentName.value.trim() === '') {
-      commentName.classList.add('input-error')
+   if (commentNameInput.value.trim() === '') {
+      commentNameInput.classList.add('input-error')
       error = true
    }
 
-   if (commentText.value.trim() === '') {
-      commentText.classList.add('input-error')
+   if (commentTextInput.value.trim() === '') {
+      commentTextInput.classList.add('input-error')
       error = true
    }
 
@@ -136,9 +144,17 @@ commentButton.addEventListener('click', () => {
    // * Добавление комментария в массив комментариев
    comments.push(
       {
-         name: commentName.value,
+         name: commentNameInput.value
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('""', '&quot;'),
          date: fnDate(commentDate),
-         text: commentText.value,
+         text: commentTextInput.value
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('""', '&quot;'),
          isLiked: false,
          likeCount: 0,
       }
@@ -148,8 +164,8 @@ commentButton.addEventListener('click', () => {
    renderComments()
 
    // * Поля ввода после создания комментария
-   commentName.value = `${commentName.value}`
-   commentText.value = ''
+   commentNameInput.value = `${commentNameInput.value}`
+   commentTextInput.value = ''
 })
 
 // * Рендер массива при загрузке страницы
